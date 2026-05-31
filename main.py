@@ -131,8 +131,8 @@ def knn_euclidean_api(target_rgb, dataset_rgb):
 FOLDER_CATEGORY = {
     "building": "assets/Building",
     "cloud":    "assets/Cloud",
-    "nature":   "assets/Nature",
-    "vehicle":  "assets/Vehicle",
+    "nature":   "assets/Forest",
+    "vehicle":  "assets/Mountain",
 }
 
 def run_mosaic(target_path, category, output_path, grid_m=64, grid_n=64):
