@@ -94,6 +94,34 @@ def knn_euclidean(target_rgb, dataset_rgb):
 
     return nearest
 
+def knn_manhattan(target_rgb, dataset_rgb):
+    rows, cols, _ = target_rgb.shape
+    nearest = np.zeros((rows, cols), dtype=int)
+
+    for row in range(rows):
+        for col in range(cols):
+            target_r, target_g, target_b = target_rgb[row, col]
+
+            min_distance = float('inf')
+            best_neighbor = -1
+
+            for i in range(len(dataset_rgb)):
+                dataset_r, dataset_g, dataset_b = dataset_rgb[i]
+
+                distance = (
+                    abs(target_r - dataset_r) +
+                    abs(target_g - dataset_g) +
+                    abs(target_b - dataset_b)
+                )
+
+                if distance < min_distance:
+                    min_distance = distance
+                    best_neighbor = i
+
+            nearest[row, col] = best_neighbor
+
+    return nearest
+
 def mosaic(nearest, img_path, target_width, target_height, grid_w, grid_h):
 
     tiles = []
