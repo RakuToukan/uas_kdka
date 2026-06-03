@@ -6,15 +6,16 @@ Base URL default: http://localhost:8080
 
 ## Endpoints
 
-- GET /categories
+ - GET /categories
   - Mengembalikan daftar kategori tile yang tersedia.
-  - Response: JSON berisi array kategori, mis. ["building", "cloud", "nature", "vehicle"].
+  - Response: JSON berisi array kategori, mis. ["building", "cloud", "forest", "mountain"].
 
 - POST /mosaic
   - Mengunggah gambar target dan memulai proses pembuatan photomosaic secara asinkron.
   - Request: multipart/form-data dengan field berikut:
     - `image` (file) — gambar target (JPG/PNG).
-    - `category` (string) — salah satu kategori tile: `building`, `cloud`, `nature`, `vehicle`.
+    - `category` (string) — salah satu kategori tile: `building`, `cloud`, `forest`, `mountain`.
+    - `distance` (string, optional) — rumus jarak yang digunakan untuk mencocokkan warna. Nilai yang didukung oleh API: `euclidean`, `minkowski`, `manhattan`. Default: `euclidean`.
   - Response saat diterima: status HTTP 202 dan body JSON berisi `job_id` dan status awal (`pending`).
   - Validasi input: server mengembalikan error jika field wajib hilang atau kategori tidak valid.
 
@@ -28,8 +29,9 @@ Base URL default: http://localhost:8080
 ## Cara Penggunaan (ringkas)
 
 1. Ambil daftar kategori dari `GET /categories`.
-2. Unggah gambar ke `POST /mosaic` dengan field `image` dan `category` untuk memulai job; catat `job_id` dari respons.
-3. Lakukan polling ke `GET /status/:id` setiap 2–3 detik untuk memeriksa progres:
+2. Ambil daftar rumus distance dari `GET /distance`.
+3. Unggah gambar ke `POST /mosaic` dengan field `image` dan `category` untuk memulai job; catat `job_id` dari respons.
+4. Lakukan polling ke `GET /status/:id` setiap 2–3 detik untuk memeriksa progres:
    - `pending` — job belum mulai
    - `processing` — pemrosesan sedang berjalan
    - `failed` — pemrosesan gagal (periksa pesan `error`)
@@ -55,3 +57,7 @@ go run main.go
 ```
 
 Server akan berjalan pada http://localhost:8080 secara default.
+
+## Penggunaan Manual (Python)
+
+Jika ingin menjalankan proses langsung tanpa melalui API, skrip Python `main.py` menerima argumen berikut: `target_image`, `category`, `distance`, `output_path`. Opsi `distance` yang didukung: `euclidean`, `minkowski`, `manhattan` (default `euclidean`).

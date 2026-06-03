@@ -5,9 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var availableDistance = []string{"euclidean", "minkowski"}
+var availableDistance = []string{"euclidean", "minkowski", "manhattan"}
 
-func GetDisrance(c *gin.Context) {
+func GetDistance(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"distance": availableDistance,
 	})

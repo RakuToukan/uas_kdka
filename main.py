@@ -127,7 +127,6 @@ def knn_minkowski(target_rgb, dataset_rgb, p=3):
 
     return nearest
 
-
 def knn_manhattan(target_rgb, dataset_rgb):
     rows, cols, _ = target_rgb.shape
     nearest = np.zeros((rows, cols), dtype=int)
@@ -186,8 +185,8 @@ def mosaic(nearest, img_path, target_width, target_height, grid_w, grid_h):
 FOLDER_CATEGORY = {
     "building": "assets/Building",
     "cloud":    "assets/Cloud",
-    "nature":   "assets/Forest",
-    "vehicle":  "assets/Mountain",
+    "forest":   "assets/Forest",
+    "mountain":  "assets/Mountain",
 }
 
 def run_mosaic(target_path, category, distance, output_path, grid_m=64, grid_n=64):
@@ -206,7 +205,7 @@ def run_mosaic(target_path, category, distance, output_path, grid_m=64, grid_n=6
         print(f"1/4 ambil dataset dari {folder}")
         avg_rgb, img_paths = get_folder_avg_rgb(folder)
         np.savez(cache_path, avg_rgb=avg_rgb, paths=np.array(img_paths))
-        print(f"      Cache disimpan ke {cache_path}")
+        print(f"Cache disimpan ke {cache_path}")
 
     print(f"2/4 menghitung avg RGB per grid dari {target_path}")
     avg_color_pixel, width, height, grid_w, grid_h = get_avg_rgb_per_grid(target_path, grid_m, grid_n)
@@ -215,7 +214,7 @@ def run_mosaic(target_path, category, distance, output_path, grid_m=64, grid_n=6
     if distance_choice in ("1", "euclidean", "e"):
         print("menggunakan jarak Euclidean")
         nearest = knn_euclidean(avg_color_pixel, avg_rgb)
-    elif distance_choice in ("2", "minkowski", "m"):
+    elif distance_choice in ("2", "minkowski", "mk"):
         print("menggunakan jarak Minkowski (p=3)")
         nearest = knn_minkowski(avg_color_pixel, avg_rgb, p=3)
     elif distance_choice in ("3", "manhattan", "mh"):
@@ -236,7 +235,7 @@ def run_mosaic(target_path, category, distance, output_path, grid_m=64, grid_n=6
 if __name__ == "__main__":
     if len(sys.argv) < 5:
         print("penggunaan: python main.py <target_image> <category> <distance> <output_path>")
-        print("category: building | cloud | nature | vehicle")
+        print("category: building | cloud | forest | mountain")
         sys.exit(1)
 
     run_mosaic(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
