@@ -94,32 +94,32 @@ def knn_euclidean(target_rgb, dataset_rgb):
 
     return nearest
 
+<<<<<<< HEAD
 import numpy as np
 
 def knn_minkowski(target_rgb, dataset_rgb, p=3):
 
+=======
+def knn_manhattan(target_rgb, dataset_rgb):
+>>>>>>> rakha/manhattan
     rows, cols, _ = target_rgb.shape
-
     nearest = np.zeros((rows, cols), dtype=int)
 
     for row in range(rows):
-
         for col in range(cols):
-
             target_r, target_g, target_b = target_rgb[row, col]
 
             min_distance = float('inf')
             best_neighbor = -1
 
             for i in range(len(dataset_rgb)):
-
                 dataset_r, dataset_g, dataset_b = dataset_rgb[i]
 
                 distance = (
-                    abs(target_r - dataset_r) ** p +
-                    abs(target_g - dataset_g) ** p +
-                    abs(target_b - dataset_b) ** p
-                ) ** (1 / p)
+                    abs(target_r - dataset_r) +
+                    abs(target_g - dataset_g) +
+                    abs(target_b - dataset_b)
+                )
 
                 if distance < min_distance:
                     min_distance = distance
