@@ -96,7 +96,7 @@ def knn_euclidean(target_rgb, dataset_rgb):
 
 import numpy as np
 
-def knn_minkowski(target_rgb, dataset_rgb, p=2):
+def knn_minkowski(target_rgb, dataset_rgb, p=3):
 
     rows, cols, _ = target_rgb.shape
 
@@ -163,6 +163,13 @@ def knn_euclidean_api(target_rgb, dataset_rgb):
     nearest_2d = np.argmin(distances, axis=1)
     return nearest_2d.reshape(target_rgb.shape[:2])
 
+def knn_minkowski_api(target_rgb, dataset_rgb, p=3):
+    target_2d = target_rgb.reshape(-1, 3)
+    combine = np.abs(target_2d[:, np.newaxis, :] - dataset_rgb[np.newaxis, :, :]) ** (1 / p)
+    distances = np.sum(combine, axis=2) ** (1 / p)
+    nearest_2d = np.argmin(distances, axis=1)
+    return nearest_2d.reshape(target_rgb.shape[:2])
+
 FOLDER_CATEGORY = {
     "building": "assets/Building",
     "cloud":    "assets/Cloud",
@@ -170,7 +177,7 @@ FOLDER_CATEGORY = {
     "vehicle":  "assets/Mountain",
 }
 
-def run_mosaic(target_path, category, output_path, grid_m=64, grid_n=64):
+def run_mosaic(target_path, category, distance, output_path, grid_m=64, grid_n=64):
     folder = FOLDER_CATEGORY.get(category.lower())
     if folder is None:
         raise ValueError(f"kategori tidak diketahui: {category}. Kategori: {list(FOLDER_CATEGORY.keys())}")
@@ -191,8 +198,18 @@ def run_mosaic(target_path, category, output_path, grid_m=64, grid_n=64):
     print(f"2/4 menghitung avg RGB per grid dari {target_path}")
     avg_color_pixel, width, height, grid_w, grid_h = get_avg_rgb_per_grid(target_path, grid_m, grid_n)
 
-    print(f"3/4 KNN matching ({grid_m}x{grid_n} grid, {len(img_paths)} tiles)")
-    nearest = knn_euclidean_api(avg_color_pixel, avg_rgb)
+    distance_choice = distance.strip().lower()
+    if distance_choice in ("1", "euclidean", "e"):
+        print("menggunakan jarak Euclidean")
+        nearest = knn_euclidean_api(avg_color_pixel, avg_rgb)
+    elif distance_choice in ("2", "minkowski", "m"):
+        print("menggunakan jarak Minkowski (p=3)")
+        nearest = knn_minkowski_api(avg_color_pixel, avg_rgb, p=3)
+    else:
+        print(f"jarak tidak dikenal: {distance}. menggunakan Euclidean sebagai default")
+        nearest = knn_euclidean_api(avg_color_pixel, avg_rgb)
+
+    print(f"3/4 mencocokkan gambar ({grid_m}x{grid_n} grid, {len(img_paths)} tiles)")
 
     print(f"4/4 Menyusun mosaic: {output_path}")
     result = mosaic(nearest, img_paths, width, height, grid_w, grid_h)
@@ -201,9 +218,9 @@ def run_mosaic(target_path, category, output_path, grid_m=64, grid_n=64):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        print("penggunaan: python main.py <target_image> <category> <output_path>")
-        print("       category: building | cloud | nature | vehicle")
+    if len(sys.argv) < 5:
+        print("penggunaan: python main.py <target_image> <category> <distance> <output_path>")
+        print("category: building | cloud | nature | vehicle")
         sys.exit(1)
 
-    run_mosaic(sys.argv[1], sys.argv[2], sys.argv[3])
+    run_mosaic(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

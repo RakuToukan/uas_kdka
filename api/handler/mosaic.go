@@ -24,6 +24,15 @@ func PostMosaic(c *gin.Context) {
 		return
 	}
 
+	distance := c.PostForm("distance")
+	if distance == "" {
+		distance = "euclidean"
+	}
+	if distance != "euclidean" && distance != "minkowski" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid distance: %s", distance)})
+		return
+	}
+
 
 	file, err := c.FormFile("image")
 	if err != nil {
