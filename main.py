@@ -94,14 +94,41 @@ def knn_euclidean(target_rgb, dataset_rgb):
 
     return nearest
 
-<<<<<<< HEAD
-import numpy as np
-
 def knn_minkowski(target_rgb, dataset_rgb, p=3):
 
-=======
+    rows, cols, _ = target_rgb.shape
+
+    nearest = np.zeros((rows, cols), dtype=int)
+
+    for row in range(rows):
+
+        for col in range(cols):
+
+            target_r, target_g, target_b = target_rgb[row, col]
+
+            min_distance = float('inf')
+            best_neighbor = -1
+
+            for i in range(len(dataset_rgb)):
+
+                dataset_r, dataset_g, dataset_b = dataset_rgb[i]
+
+                distance = (
+                    abs(target_r - dataset_r) ** p +
+                    abs(target_g - dataset_g) ** p +
+                    abs(target_b - dataset_b) ** p
+                ) ** (1 / p)
+
+                if distance < min_distance:
+                    min_distance = distance
+                    best_neighbor = i
+
+            nearest[row, col] = best_neighbor
+
+    return nearest
+
+
 def knn_manhattan(target_rgb, dataset_rgb):
->>>>>>> rakha/manhattan
     rows, cols, _ = target_rgb.shape
     nearest = np.zeros((rows, cols), dtype=int)
 
@@ -156,20 +183,6 @@ def mosaic(nearest, img_path, target_width, target_height, grid_w, grid_h):
 
     return mosaic
 
-def knn_euclidean_api(target_rgb, dataset_rgb):
-    target_2d = target_rgb.reshape(-1, 3)
-    combine = target_2d[:, np.newaxis, :] - dataset_rgb[np.newaxis, :, :]
-    distances = np.sqrt(np.sum(combine**2, axis=2))
-    nearest_2d = np.argmin(distances, axis=1)
-    return nearest_2d.reshape(target_rgb.shape[:2])
-
-def knn_minkowski_api(target_rgb, dataset_rgb, p=3):
-    target_2d = target_rgb.reshape(-1, 3)
-    combine = np.abs(target_2d[:, np.newaxis, :] - dataset_rgb[np.newaxis, :, :]) ** (1 / p)
-    distances = np.sum(combine, axis=2) ** (1 / p)
-    nearest_2d = np.argmin(distances, axis=1)
-    return nearest_2d.reshape(target_rgb.shape[:2])
-
 FOLDER_CATEGORY = {
     "building": "assets/Building",
     "cloud":    "assets/Cloud",
@@ -201,13 +214,16 @@ def run_mosaic(target_path, category, distance, output_path, grid_m=64, grid_n=6
     distance_choice = distance.strip().lower()
     if distance_choice in ("1", "euclidean", "e"):
         print("menggunakan jarak Euclidean")
-        nearest = knn_euclidean_api(avg_color_pixel, avg_rgb)
+        nearest = knn_euclidean(avg_color_pixel, avg_rgb)
     elif distance_choice in ("2", "minkowski", "m"):
         print("menggunakan jarak Minkowski (p=3)")
-        nearest = knn_minkowski_api(avg_color_pixel, avg_rgb, p=3)
+        nearest = knn_minkowski(avg_color_pixel, avg_rgb, p=3)
+    elif distance_choice in ("3", "manhattan", "mh"):
+        print("menggunakan jarak Manhattan")
+        nearest = knn_manhattan(avg_color_pixel, avg_rgb)
     else:
         print(f"jarak tidak dikenal: {distance}. menggunakan Euclidean sebagai default")
-        nearest = knn_euclidean_api(avg_color_pixel, avg_rgb)
+        nearest = knn_euclidean(avg_color_pixel, avg_rgb)
 
     print(f"3/4 mencocokkan gambar ({grid_m}x{grid_n} grid, {len(img_paths)} tiles)")
 
