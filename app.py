@@ -16,20 +16,20 @@ from main import (
     FOLDER_CATEGORY,
 )
 
-# ── Konfigurasi halaman ──────────────────────────────────────────────────────
+# Page Config
 st.set_page_config(
     page_title="Photomosaic Generator",
     page_icon="🖼️",
     layout="centered",
 )
 
-# ── Judul ────────────────────────────────────────────────────────────────────
-st.title("🖼️ Photomosaic Generator")
+# Title
+st.title("🖼️ Photomosaic Art Generator")
 st.write("Upload gambar referensi, pilih kategori tile dan metode jarak, lalu generate mosaik!")
 
 st.divider()
 
-# ── 1. Upload gambar ─────────────────────────────────────────────────────────
+# Upload Image
 st.subheader("1. Upload Gambar Referensi")
 uploaded_file = st.file_uploader(
     "Pilih gambar (JPG / PNG)",
@@ -42,7 +42,7 @@ if uploaded_file:
 
 st.divider()
 
-# ── 2. Pilih kategori ────────────────────────────────────────────────────────
+# Category Selection
 st.subheader("2. Pilih Kategori Tile")
 
 CATEGORY_LABELS = {
@@ -65,7 +65,7 @@ selected_category = category_options[category_labels.index(selected_label)]
 
 st.divider()
 
-# ── 3. Pilih metode jarak ────────────────────────────────────────────────────
+# Distance Selection
 st.subheader("3. Pilih Metode Jarak KNN")
 
 DISTANCE_OPTIONS = {
@@ -84,17 +84,17 @@ selected_distance = DISTANCE_OPTIONS[selected_distance_label]
 
 st.divider()
 
-# ── 4. Ukuran grid ───────────────────────────────────────────────────────────
+# Grid Size
 st.subheader("4. Ukuran Grid")
 col_m, col_n = st.columns(2)
 with col_m:
-    grid_m = st.slider("Kolom (m)", min_value=16, max_value=128, value=64, step=8)
+    grid_m = st.slider("Kolom (m)", min_value=16, max_value=256, value=64, step=8)
 with col_n:
-    grid_n = st.slider("Baris (n)",  min_value=16, max_value=128, value=64, step=8)
+    grid_n = st.slider("Baris (n)",  min_value=16, max_value=256, value=64, step=8)
 
 st.divider()
 
-# Tombol Generate
+# Generate Button
 generate_btn = st.button(
     "✨ Generate Mosaik",
     type="primary",
@@ -142,13 +142,13 @@ if generate_btn and uploaded_file:
             st.error(f"Tidak ada gambar ditemukan di folder `{folder}`.")
             st.stop()
 
-        # Step 2: Hitung avg RGB per grid
+        # Hitung avg RGB per grid
         progress.progress(35, text="🎨 Menghitung warna rata-rata per grid...")
         avg_color_pixel, width, height, grid_w, grid_h = get_avg_rgb_per_grid(
             tmp_path, grid_m, grid_n
         )
 
-        # Step 3: KNN matching
+        # KNN matching
         progress.progress(50, text=f"🔎 Mencocokkan tile ({selected_distance_label})...")
         if selected_distance == "euclidean":
             nearest = knn_euclidean(avg_color_pixel, avg_rgb)
@@ -157,7 +157,7 @@ if generate_btn and uploaded_file:
         else:
             nearest = knn_manhattan(avg_color_pixel, avg_rgb)
 
-        # Step 4: Susun mosaik
+        # Susun mosaik
         progress.progress(85, text="🖼️ Menyusun mosaik...")
         result_img = mosaic(nearest, img_paths, width, height, grid_w, grid_h)
 
