@@ -5,7 +5,7 @@ import os
 import io
 import tempfile
 
-# ── Import semua fungsi dari main.py ────────────────────────────────────────
+# Import semua fungsi dari main.py 
 from main import (
     get_folder_avg_rgb,
     get_avg_rgb_per_grid,
