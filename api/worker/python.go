@@ -3,13 +3,14 @@ package worker
 import (
 	"fmt"
 	"os/exec"
+
 	"github.com/r6rap/uas_kdka/api/job"
 )
 
-func RunMosaic(jobID, targetPath, category, outputPath string) {
+func RunMosaic(jobID, targetPath, category, distance, outputPath string) {
 	job.Global.Update(jobID, job.StatusProcessing, "", "")
 
-	cmd := exec.Command("python", "main.py", targetPath, category, outputPath)
+	cmd := exec.Command("python", "main.py", targetPath, category, distance, outputPath)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {

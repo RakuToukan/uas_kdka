@@ -16,11 +16,6 @@ from sklearn.metrics import (
 m = 64
 n = 64
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  Image helpers
-# ─────────────────────────────────────────────────────────────────────────────
-
 def get_folder_avg_rgb(folder):
     avg_rgb, img_paths = [], []
     for file in os.listdir(folder):
@@ -62,13 +57,8 @@ def mosaic(nearest, img_path, target_width, target_height, grid_w, grid_h):
             result.paste(tile, (int(col * grid_w), int(row * grid_h)))
     return result
 
-
+# Algoritma Start
 def train_and_evaluate(avg_rgb, output_dir="output"):
-    """
-    Tiap tile = 1 sampel dengan fitur [R, G, B] dan label = indeks tile.
-    Karena setiap label hanya muncul 1x, kita buat data augmented (dengan
-    noise kecil) agar train/test split & cross-validation bisa berjalan.
-    """
     os.makedirs(output_dir, exist_ok=True)
 
     np.random.seed(42)
@@ -94,13 +84,13 @@ def train_and_evaluate(avg_rgb, output_dir="output"):
         X, y, test_size=0.2, random_state=42, stratify=y
     )
 
-    print("\n>>> GridSearchCV — mencari hyperparameter terbaik …")
+    print("\n>>> GridSearchCV - mencari hyperparameter terbaik …")
     dtree      = DecisionTreeClassifier(class_weight="balanced")
     param_grid = {
-        "max_depth":         [4, 5, 6, 7],
+        "max_depth": [4, 5, 6, 7],
         "min_samples_split": [2, 3, 4],
-        "min_samples_leaf":  [1, 2, 3],
-        "random_state":      [0, 42],
+        "min_samples_leaf": [1, 2, 3],
+        "random_state": [0, 42],
     }
     cv          = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     grid_search = GridSearchCV(dtree, param_grid, cv=cv, n_jobs=-1)
@@ -126,7 +116,7 @@ def train_and_evaluate(avg_rgb, output_dir="output"):
 
     plt.figure(figsize=(10, 8))
     sns.barplot(data=fi2, x="Importance", y="Feature Name")
-    plt.title("Top 10 Feature Importance Each Attributes (Decision Tree)", fontsize=18)
+    plt.title("Top Feature Importance/Information Gain (Decision Tree)", fontsize=18)
     plt.xlabel("Importance", fontsize=16)
     plt.ylabel("Feature Name", fontsize=16)
     plt.tight_layout()
@@ -155,18 +145,17 @@ def train_and_evaluate(avg_rgb, output_dir="output"):
     print(f"    saved → {path_cm}")
 
     return dtree
-
+# Algortima End
 
 FOLDER_CATEGORY = {
     "building": "assets/Building",
     "cloud":    "assets/Cloud",
     "nature":   "assets/Forest",
-    "vehicle":  "assets/Mountain",
+    "mountain":  "assets/Mountain",
 }
 
 
-def run_mosaic(target_path, category, output_path, grid_m=64, grid_n=64,
-               output_dir="output"):
+def run_mosaic(target_path, category, output_path, grid_m=64, grid_n=64, output_dir="output"):
 
     folder = FOLDER_CATEGORY.get(category.lower())
     if folder is None:
@@ -205,12 +194,12 @@ def run_mosaic(target_path, category, output_path, grid_m=64, grid_n=64,
 
     result = mosaic(nearest, img_paths, width, height, grid_w, grid_h)
     result.save(output_path)
-    print("selesai ✓")
+    print("selesai")
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
         print("penggunaan: python main.py <target_image> <category> <output_path> [output_dir]")
-        print("  category   : building | cloud | nature | vehicle")
+        print("  category   : building | cloud | nature | mountain")
         print("  output_dir : folder untuk menyimpan plot (default: output)")
         sys.exit(1)
 

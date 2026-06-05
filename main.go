@@ -19,6 +19,7 @@ func main() {
     }))
 
     r.GET("/categories", handler.GetCategories)
+    r.GET("/distances", handler.GetDistance)
     r.POST("/mosaic", handler.PostMosaic)
     r.GET("/status/:id", handler.GetStatus)
 

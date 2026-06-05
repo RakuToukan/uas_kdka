@@ -18,9 +18,18 @@ func PostMosaic(c *gin.Context) {
 		return
 	}
 
-	valid := map[string]bool{"building": true, "cloud": true, "nature": true, "vehicle": true}
+	valid := map[string]bool{"building": true, "cloud": true, "forest": true, "mountain": true}
 	if !valid[category] {
 		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid category: %s", category)})
+		return
+	}
+
+	distance := c.PostForm("distance")
+	if distance == "" {
+		distance = "euclidean"
+	}
+	if distance != "euclidean" && distance != "minkowski" && distance != "manhattan" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid distance: %s", distance)})
 		return
 	}
 
@@ -43,7 +52,7 @@ func PostMosaic(c *gin.Context) {
 	outputPath := filepath.Join("outputs", jobID+".jpg")
 	job.Global.Create(jobID)
 
-	go worker.RunMosaic(jobID, uploadPath, category, outputPath)
+	go worker.RunMosaic(jobID, uploadPath, category, distance, outputPath)
 
 	c.JSON(http.StatusAccepted, gin.H{
 		"job_id": jobID,
